@@ -1,14 +1,14 @@
 (function () {
-  var app = document.getElementById('app');
-  var themeToggle = document.getElementById('themeToggle');
-  var allCountries = [];
-  var currentRegion = '';
-  var currentPage = 1;
-  var perPage = 20;
-  var filteredCountries = [];
+  const app = document.getElementById('app');
+  const themeToggle = document.getElementById('themeToggle');
+  let allCountries = [];
+  let currentRegion = '';
+  let currentPage = 1;
+  const perPage = 20;
+  let filteredCountries = [];
 
   function initTheme() {
-    var saved = localStorage.getItem('theme');
+    const saved = localStorage.getItem('theme');
     if (saved === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
       updateThemeIcon(true);
@@ -22,7 +22,7 @@
   }
 
   themeToggle.addEventListener('click', function () {
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     if (isDark) {
       document.documentElement.removeAttribute('data-theme');
       localStorage.setItem('theme', 'light');
@@ -39,7 +39,7 @@
   }
 
   function getRegionList(countries) {
-    var regions = {};
+    const regions = {};
     countries.forEach(function (c) {
       if (c.region) regions[c.region] = true;
     });
@@ -66,8 +66,8 @@
     app.innerHTML = '<p class="loading">Loading countries...</p>';
 
     loadData(function (countries) {
-      var regions = getRegionList(countries);
-      var controlsHtml =
+      const regions = getRegionList(countries);
+      const controlsHtml =
         '<div class="home__controls">' +
           '<div class="search">' +
             '<i class="fa-solid fa-magnifying-glass"></i>' +
@@ -92,7 +92,7 @@
       filteredCountries = countries.slice();
       currentPage = 1;
       renderPage();
-      setupHomeEvents(countries, regions);
+      setupHomeEvents(regions);
     });
   }
 
@@ -109,7 +109,7 @@
   }
 
   function renderCountries(countries) {
-    var grid = document.getElementById('countriesGrid');
+    const grid = document.getElementById('countriesGrid');
     if (!grid) return;
 
     if (countries.length === 0) {
@@ -117,26 +117,26 @@
       return;
     }
 
-    var start = (currentPage - 1) * perPage;
-    var end = start + perPage;
-    var pageItems = countries.slice(start, end);
+    const start = (currentPage - 1) * perPage;
+    const end = start + perPage;
+    const pageItems = countries.slice(start, end);
     grid.innerHTML = pageItems.map(countryCardHtml).join('');
   }
 
   function renderPagination() {
-    var pagination = document.getElementById('pagination');
+    const pagination = document.getElementById('pagination');
     if (!pagination) return;
 
-    var totalPages = Math.ceil(filteredCountries.length / perPage);
+    const totalPages = Math.ceil(filteredCountries.length / perPage);
     if (totalPages <= 1) {
       pagination.innerHTML = '';
       return;
     }
 
-    var html = '<button class="pagination__btn" data-page="prev" ' + (currentPage === 1 ? 'disabled' : '') + '><i class="fa-solid fa-chevron-left"></i></button>';
+    let html = '<button class="pagination__btn" data-page="prev" ' + (currentPage === 1 ? 'disabled' : '') + '><i class="fa-solid fa-chevron-left"></i></button>';
 
-    var startPage = Math.max(1, currentPage - 2);
-    var endPage = Math.min(totalPages, startPage + 4);
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
     if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
 
     if (startPage > 1) {
@@ -144,7 +144,7 @@
       if (startPage > 2) html += '<span class="pagination__ellipsis">...</span>';
     }
 
-    for (var i = startPage; i <= endPage; i++) {
+    for (let i = startPage; i <= endPage; i++) {
       html += '<button class="pagination__btn' + (i === currentPage ? ' pagination__btn--active' : '') + '" data-page="' + i + '">' + i + '</button>';
     }
 
@@ -159,8 +159,8 @@
 
     pagination.querySelectorAll('.pagination__btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var page = btn.getAttribute('data-page');
-        var total = Math.ceil(filteredCountries.length / perPage);
+        const page = btn.getAttribute('data-page');
+        const total = Math.ceil(filteredCountries.length / perPage);
         if (page === 'prev') currentPage = Math.max(1, currentPage - 1);
         else if (page === 'next') currentPage = Math.min(total, currentPage + 1);
         else currentPage = parseInt(page, 10);
@@ -175,18 +175,18 @@
     renderPagination();
   }
 
-  function setupHomeEvents(countries, regions) {
-    var searchInput = document.getElementById('searchInput');
-    var filterBtn = document.getElementById('filterBtn');
-    var filterDropdown = document.getElementById('filterDropdown');
-    var filterLabel = document.getElementById('filterLabel');
-    var filterOptions = document.querySelectorAll('.filter__option');
+  function setupHomeEvents() {
+    const searchInput = document.getElementById('searchInput');
+    const filterBtn = document.getElementById('filterBtn');
+    const filterDropdown = document.getElementById('filterDropdown');
+    const filterLabel = document.getElementById('filterLabel');
+    const filterOptions = document.querySelectorAll('.filter__option');
 
     function filterCountries() {
-      var query = searchInput.value.toLowerCase().trim();
+      const query = searchInput.value.toLowerCase().trim();
       filteredCountries = allCountries.filter(function (c) {
-        var matchesSearch = !query || c.name.toLowerCase().indexOf(query) !== -1;
-        var matchesRegion = !currentRegion || c.region === currentRegion;
+        const matchesSearch = !query || c.name.toLowerCase().indexOf(query) !== -1;
+        const matchesRegion = !currentRegion || c.region === currentRegion;
         return matchesSearch && matchesRegion;
       });
       currentPage = 1;
@@ -223,28 +223,28 @@
     app.innerHTML = '<p class="loading">Loading country details...</p>';
 
     loadData(function (countries) {
-      var country = countries.find(function (c) { return c.alpha3Code === code; });
+      const country = countries.find(function (c) { return c.alpha3Code === code; });
 
       if (!country) {
         app.innerHTML = '<p class="no-results">Country not found.</p>';
         return;
       }
 
-      var currencies = (country.currencies || []).map(function (c) { return c.name; }).join(', ') || 'N/A';
-      var languages = (country.languages || []).map(function (l) { return l.name; }).join(', ') || 'N/A';
-      var tld = (country.topLevelDomain || []).join(', ') || 'N/A';
+      const currencies = (country.currencies || []).map(function (c) { return c.name; }).join(', ') || 'N/A';
+      const languages = (country.languages || []).map(function (l) { return l.name; }).join(', ') || 'N/A';
+      const tld = (country.topLevelDomain || []).join(', ') || 'N/A';
 
-      var bordersHtml = '';
+      let bordersHtml = '';
       if (country.borders && country.borders.length) {
-        var btns = country.borders.map(function (code) {
-          var border = countries.find(function (c) { return c.alpha3Code === code; });
-          var name = border ? border.name : code;
-          return '<a href="#/country/' + code + '" class="detail__border-btn">' + name + '</a>';
+        const borderBtns = country.borders.map(function (borderCode) {
+          const border = countries.find(function (c) { return c.alpha3Code === borderCode; });
+          const name = border ? border.name : borderCode;
+          return '<a href="#/country/' + borderCode + '" class="detail__border-btn">' + name + '</a>';
         }).join('');
         bordersHtml =
           '<div class="detail__borders">' +
             '<h3 class="detail__borders-title">Border Countries:</h3>' +
-            '<div class="detail__borders-list">' + btns + '</div>' +
+            '<div class="detail__borders-list">' + borderBtns + '</div>' +
           '</div>';
       }
 
@@ -275,8 +275,8 @@
   }
 
   function router() {
-    var hash = window.location.hash || '#/';
-    var countryMatch = hash.match(/^#\/country\/(.+)$/);
+    const hash = window.location.hash || '#/';
+    const countryMatch = hash.match(/^#\/country\/(.+)$/);
 
     if (countryMatch) {
       renderDetail(countryMatch[1]);
